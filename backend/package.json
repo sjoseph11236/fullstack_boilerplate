@@ -4,6 +4,7 @@
 	"version": "0.0.0",
 	"scripts": {
 		"db:migrate": "ts-node -r dotenv/config scripts/db-migrate.ts",
+		"db:reset": "ts-node scripts/db-reset.ts",
 		"dev": "nodemon --exec ts-node -r dotenv/config server.ts",
 		"build": "tsc",
 		"start": "node -r dotenv/config dist/server.js"

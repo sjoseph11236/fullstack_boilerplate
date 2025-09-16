@@ -17,11 +17,11 @@ CREATE INDEX IF NOT EXISTS idx_attempts_user_assignment_status
 CREATE TABLE IF NOT EXISTS attempt_answers (
   id               INTEGER PRIMARY KEY AUTOINCREMENT,
   attempt_id       INTEGER NOT NULL REFERENCES attempts(id),
-  question_id      INTEGER NOT NULL REFERENCES assignment_questions(id),
-  answer_json      TEXT,
-  is_correct       INTEGER,
+  question_id      INTEGER NOT NULL REFERENCES questions(id),
+  answer_json      TEXT, -- stores raw answer (e.g. { choiceIndex: 2 })
+  is_correct       INTEGER, -- 0 = false, 1 = true
   points_awarded   INTEGER,
-  graded_by        TEXT,
+  graded_by        TEXT NOT NULL DEFAULT 'system', -- 'system' | 'ai'
   explanation      TEXT,
   graded_at        DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   UNIQUE (attempt_id, question_id)
