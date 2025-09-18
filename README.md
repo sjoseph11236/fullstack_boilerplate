@@ -48,3 +48,14 @@ npm run dev
 
 You should now be able to reach the frontend app at http://localhost:3000 (and this port is configurable via `VITE_FRONTEND_SERVER_PORT` in `.env.local`).
 The backend is available at http://localhost:3001 (and this port is configurable via `VITE_BACKEND_SERVER_PORT` in `.env.local`).
+
+## Database Commands
+
+### Reset the database
+
+Drops all tables and reruns migrations:
+
+```bash
+npm run reset
+npm run setup
+```

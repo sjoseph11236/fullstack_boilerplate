@@ -45,7 +45,7 @@ export function QuizPage() {
 			const data = (await res.json()) as { attempt: { id: number } };
 			navigate(`/attempt/${data.attempt.id}`);
 		} catch (e: unknown) {
-			normalizeError(e);
+			setError(normalizeError(e));
 		} finally {
 			setStarting(false);
 		}

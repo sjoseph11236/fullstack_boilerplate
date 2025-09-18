@@ -1,22 +1,7 @@
+import { summaryApiUrl } from "@/paths";
+import type { AttemptSummary } from "@/types/attempt";
 import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
-
-type AnswerSummary = {
-	questionId: number;
-	prompt: string;
-	correct: boolean;
-	correctAnswer?: string;
-	givenAnswer?: string;
-	pointsAwarded: number;
-};
-
-type AttemptSummary = {
-	attemptId: number;
-	score: number;
-	possible: number;
-	totalTimeMs: number;
-	answers: AnswerSummary[];
-};
 
 export function SummaryPage() {
 	const { id: attemptId } = useParams<{ id: string }>();
@@ -26,7 +11,7 @@ export function SummaryPage() {
 
 	useEffect(() => {
 		if (!attemptId) return;
-		fetch(`http://localhost:3001/attempts/${attemptId}/summary`)
+		fetch(summaryApiUrl({ id: attemptId }))
 			.then((res) => {
 				if (!res.ok) throw new Error(`Failed with status ${res.status}`);
 				return res.json();

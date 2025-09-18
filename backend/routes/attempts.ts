@@ -8,12 +8,13 @@ import type {
 	CreateAnswerBody,
 } from "../types/attempts";
 import { db } from "../db-client";
-import { getAttemptId } from "../utils/getAttemptId";
+import { getId } from "../utils/getId";
 
 export async function attemptsRoutes(app: FastifyInstance) {
 	// GET /attempts/:id/next
 	app.get<WithId>("/:id/next", async (req, res) => {
-		const attemptId = getAttemptId(req, res);
+		const attemptId = getId(req, res, "Attempt");
+		if (attemptId === null) return; // reply already sent
 		const row = db
 			.prepare<[number, number], QuestionRow>(`
 			SELECT q.id, q.prompt, q.points, q.order_index, q.choices, q.type
@@ -44,15 +45,15 @@ export async function attemptsRoutes(app: FastifyInstance) {
 
 	// GET /attempts/:id/summary
 	app.get<WithId>("/:id/summary", async (req, res) => {
-		const attemptId = getAttemptId(req, res);
-
+		const attemptId = getId(req, res, "Attempt");
+		if (attemptId === null) return; // reply already sent
 		const header = db
 			.prepare<[number], { attempt_id: number; total_ms: number | null }>(`
       SELECT id AS attempt_id, total_elapsed_ms AS total_ms
       FROM attempts WHERE id = ?
     `)
 			.get(attemptId);
-		if (!header) return res.code(404).send({ error: "attempt not found" });
+		if (!header) return res.code(404).send({ message: "attempt not found" });
 
 		// score/possible
 		const totals = db
@@ -166,7 +167,7 @@ export async function attemptsRoutes(app: FastifyInstance) {
 			.get(info.lastInsertRowid as number);
 
 		if (!created) {
-			return res.code(500).send({ error: "failed to create attempt" });
+			return res.code(500).send({ message: "failed to create attempt" });
 		}
 
 		return res.code(201).send({
@@ -184,8 +185,8 @@ export async function attemptsRoutes(app: FastifyInstance) {
 	app.post<WithId<{ Body: CreateAnswerBody }>>(
 		"/:id/answers",
 		async (req, res) => {
-			const attemptId = getAttemptId(req, res);
-
+			const attemptId = getId(req, res, "Attempt");
+			if (attemptId === null) return; // reply already sent
 			const attempt = db
 				.prepare<[number], { id: number; assignment_id: number }>(`
 				SELECT id, assignment_id FROM attempts WHERE id = ? AND status = 'in_progress'
@@ -193,7 +194,7 @@ export async function attemptsRoutes(app: FastifyInstance) {
 				.get(attemptId);
 
 			if (!attempt) {
-				return res.code(409).send({ error: "attempt not in progress" });
+				return res.code(409).send({ message: "attempt not in progress" });
 			}
 
 			const body = req.body;
@@ -201,7 +202,7 @@ export async function attemptsRoutes(app: FastifyInstance) {
 			if (!body?.questionId || body.answer?.choiceIndex == null) {
 				return res
 					.code(400)
-					.send({ error: "questionId and answer.choiceIndex required" });
+					.send({ message: "questionId and answer.choiceIndex required" });
 			}
 
 			const question = db
@@ -211,7 +212,7 @@ export async function attemptsRoutes(app: FastifyInstance) {
 				.get(body.questionId);
 
 			if (!question) {
-				return res.code(404).send({ error: "question not found" });
+				return res.code(404).send({ message: "question not found" });
 			}
 
 			// Parse choices into array
@@ -251,8 +252,8 @@ export async function attemptsRoutes(app: FastifyInstance) {
 
 	// POST /attempts/:id/submit
 	app.post<WithId>("/:id/submit", async (req, res) => {
-		const attemptId = getAttemptId(req, res);
-
+		const attemptId = getId(req, res, "Attempt");
+		if (attemptId === null) return; // reply already sent
 		// Ensure attempt exists and is still in_progress
 		const attempt = db
 			.prepare<[number], { id: number; started_at: string }>(`
@@ -263,7 +264,7 @@ export async function attemptsRoutes(app: FastifyInstance) {
 
 		if (!attempt) {
 			// Already submitted or not found
-			return res.code(409).send({ error: "attempt not in progress" });
+			return res.code(409).send({ message: "attempt not in progress" });
 		}
 
 		// Compute totals

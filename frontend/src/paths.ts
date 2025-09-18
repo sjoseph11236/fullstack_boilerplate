@@ -15,6 +15,7 @@ export const attemptsApiUrl = apiUrlFactory("/attempts");
 export const nextAttemptApiUrl = apiUrlFactory("/attempts/:id/next");
 export const answerAttemptApiUrl = apiUrlFactory("/attempts/:id/answers");
 export const submitAttemptApiUrl = apiUrlFactory("/attempts/:id/submit");
+export const summaryApiUrl = apiUrlFactory("/attempts/:id/summary");
 
 // local routes
 export const rootPath = pathFactory("/");

@@ -4,24 +4,9 @@ import {
 	nextAttemptApiUrl,
 	submitAttemptApiUrl,
 } from "@/paths";
+import type { PostAnswerResp, Question } from "@/types/attempt";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-
-type Question = {
-	id: number;
-	prompt: string;
-	points: number;
-	orderIndex: number; // 0-based
-	type: "mcq";
-	choices: string[];
-};
-
-type GetNextResp = { question: Question } | undefined; // 204 -> undefined
-type PostAnswerResp = {
-	correct: boolean;
-	explanation?: string | null;
-	points: number;
-};
 
 export function AttemptPage() {
 	const { id: attemptId } = useParams<{ id: string }>();
@@ -58,7 +43,7 @@ export function AttemptPage() {
 			setChoiceIndex(null);
 			setFeedback(null);
 		} catch (e: unknown) {
-			normalizeError(e);
+			setError(normalizeError(e).message);
 		} finally {
 			setLoading(false);
 		}
@@ -91,7 +76,7 @@ export function AttemptPage() {
 			// brief pause so the student sees feedback
 			setTimeout(loadNext, 800);
 		} catch (e: unknown) {
-			normalizeError(e);
+			setError(normalizeError(e).message);
 		} finally {
 			setSubmitting(false);
 		}
@@ -150,7 +135,7 @@ export function AttemptPage() {
 			<div className="space-y-2">
 				{q.choices?.map((c, idx) => (
 					<label
-						key={idx}
+						key={`${q.id}-${idx}`}
 						className={`block cursor-pointer rounded border p-3 ${
 							choiceIndex === idx
 								? "border-blue-500 ring-1 ring-blue-300"
