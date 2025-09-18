@@ -6,7 +6,8 @@
 		"dev:backend": "cd backend && npm run dev",
 		"dev:frontend": "cd frontend && npm run dev",
 		"dev": "npm i && concurrently -k -c \"auto\" \"npm:dev:*\"",
-		"setup": "npm i && cd backend && npm run db:migrate"
+		"setup": "npm i && cd backend && npm run db:migrate",
+		"reset": "cd backend && npm run db:reset"
 	},
 	"author": "",
 	"license": "ISC",

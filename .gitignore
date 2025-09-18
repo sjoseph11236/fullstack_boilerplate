@@ -7,6 +7,8 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
+.env 
+
 node_modules
 dist
 dist-ssr
@@ -29,6 +31,7 @@ frontend/src/output.css
 
 # ignore sqlite3
 *.sqlite3*
+*.sqlite
 
 # Ignore mise
 .mise.local.toml
